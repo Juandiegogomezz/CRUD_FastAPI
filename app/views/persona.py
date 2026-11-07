@@ -42,3 +42,17 @@ class PersonaRead(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class EdadEstadisticas(BaseModel):
+    """Schema for age statistics computed from birth_date."""
+    edad_promedio: float | None
+    edad_minima: int | None
+    edad_maxima: int | None
+
+
+class EdadEstadisticas(BaseModel):
+    """Schema for age statistics computed from birth_date."""
+    edad_promedio: float | None
+    edad_minima: int | None
+    edad_maxima: int | None
