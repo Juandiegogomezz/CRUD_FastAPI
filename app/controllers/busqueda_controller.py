@@ -15,3 +15,11 @@ router = APIRouter(prefix="/personas", tags=["busqueda y bulk"])
 def buscar_personas(termino: str, db: Session = Depends(get_db)):
     """Busca en first_name, last_name o email. Si no hay nada, devuelve []."""
     return busqueda_service.buscar_personas(db, termino)
+
+
+
+# --- F. Reporte de activos (proyección) -------------------------------------
+@router.get("/reporte/activos", response_model=List[PersonaActivaRead])
+def reporte_activos(db: Session = Depends(get_db)):
+    """Solo activos, mostrando únicamente id, email, phone, is_active."""
+    return busqueda_service.reporte_activos(db)
