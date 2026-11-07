@@ -23,3 +23,11 @@ def buscar_personas(termino: str, db: Session = Depends(get_db)):
 def reporte_activos(db: Session = Depends(get_db)):
     """Solo activos, mostrando únicamente id, email, phone, is_active."""
     return busqueda_service.reporte_activos(db)
+
+
+
+# --- H. Desactivación masiva ------------------------------------------------
+@router.patch("/bulk/desactivar")
+def desactivar_bulk(body: BulkDesactivarRequest, db: Session = Depends(get_db)):
+    """Pone is_active = false a una lista de IDs (máximo 100)."""
+    return busqueda_service.desactivar_bulk(db, body.ids)
