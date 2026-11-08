@@ -1,6 +1,7 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from faker import Faker
 
 from ..models.persona import Persona
 from ..views.persona import PersonaCreate, PersonaUpdate
@@ -76,3 +77,37 @@ def delete_persona(db: Session, persona_id: int) -> None:
         raise PersonaNotFoundError()
     db.delete(obj)
     db.commit()
+
+def poblar_personas(db: Session, cantidad: int) -> int:
+    """Generate and insert `cantidad` fake Personas with realistic data."""
+    fake = Faker()
+    dominios = ["gmail.com", "outlook.com"]
+    creados = 0
+
+    for _ in range(cantidad):
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        dominio = fake.random_element(dominios)
+        base_email = f"{first_name}.{last_name}".lower()
+        email = f"{base_email}@{dominio}"
+
+        # Si el email ya existe, le agregamos un numero hasta que sea unico
+        contador = 1
+        while db.query(Persona).filter(Persona.email == email).first():
+            email = f"{base_email}{contador}@{dominio}"
+            contador += 1
+
+        obj = Persona(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=fake.phone_number(),
+            birth_date=fake.date_of_birth(minimum_age=18, maximum_age=85),
+            is_active=fake.boolean(),
+            notes=fake.sentence() if fake.boolean() else None,
+        )
+        db.add(obj)
+        creados += 1
+
+    db.commit()
+    return creados
