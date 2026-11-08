@@ -1,6 +1,7 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+import unicodedata
 from faker import Faker
 
 from ..models.persona import Persona
@@ -78,9 +79,16 @@ def delete_persona(db: Session, persona_id: int) -> None:
     db.delete(obj)
     db.commit()
 
+def _normalizar_para_email(texto: str) -> str:
+    """Quita tildes, enes y caracteres especiales para usar en un email."""
+    texto_normalizado = unicodedata.normalize("NFKD", texto)
+    solo_ascii = texto_normalizado.encode("ascii", "ignore").decode("ascii")
+    return solo_ascii.lower()
+
+
 def poblar_personas(db: Session, cantidad: int) -> int:
     """Generate and insert `cantidad` fake Personas with realistic data."""
-    fake = Faker()
+    fake = Faker("es_CO")
     dominios = ["gmail.com", "outlook.com"]
     creados = 0
 
@@ -88,7 +96,7 @@ def poblar_personas(db: Session, cantidad: int) -> int:
         first_name = fake.first_name()
         last_name = fake.last_name()
         dominio = fake.random_element(dominios)
-        base_email = f"{first_name}.{last_name}".lower()
+        base_email = f"{_normalizar_para_email(first_name)}.{_normalizar_para_email(last_name)}"
         email = f"{base_email}@{dominio}"
 
         # Si el email ya existe, le agregamos un numero hasta que sea unico
