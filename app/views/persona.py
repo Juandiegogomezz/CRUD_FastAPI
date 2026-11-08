@@ -42,3 +42,7 @@ class PersonaRead(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+class PoblarRequest(BaseModel):
+    """Schema used for the bulk population request."""
+    cantidad: int = Field(..., gt=0, le=1000)
