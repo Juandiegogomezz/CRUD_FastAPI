@@ -1,6 +1,7 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func, text
 
 from ..models.persona import Persona
 from ..views.persona import PersonaCreate, PersonaUpdate
@@ -76,3 +77,15 @@ def delete_persona(db: Session, persona_id: int) -> None:
         raise PersonaNotFoundError()
     db.delete(obj)
     db.commit()
+
+    
+def get_dominios_stats(db: Session) -> dict:
+    """Return the number of Personas per email domain."""
+    dominio = func.substring_index(Persona.email, "@", -1)
+    rows = (
+        db.query(dominio, func.count(Persona.id))
+        .group_by(dominio)
+        .order_by(func.count(Persona.id).desc())
+        .all()
+    )
+    return {nombre: total for nombre, total in rows}
