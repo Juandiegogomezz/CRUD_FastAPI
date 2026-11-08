@@ -1,7 +1,8 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-
+import csv
+import io
 from ..models.persona import Persona
 from ..views.persona import PersonaCreate, PersonaUpdate
 from .errors import PersonaNotFoundError, EmailAlreadyExistsError
@@ -76,3 +77,29 @@ def delete_persona(db: Session, persona_id: int) -> None:
         raise PersonaNotFoundError()
     db.delete(obj)
     db.commit()
+
+def exportar_personas_csv(db: Session):
+    """Generate a CSV stream with all Personas (excluding created_at)."""
+    personas = db.query(Persona).all()
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+
+    # Encabezado
+    writer.writerow(["id", "first_name", "last_name", "email", "phone", "birth_date", "is_active", "notes"])
+
+    # Filas
+    for p in personas:
+        writer.writerow([
+            p.id,
+            p.first_name,
+            p.last_name,
+            p.email,
+            p.phone,
+            p.birth_date,
+            p.is_active,
+            p.notes,
+        ])
+
+    buffer.seek(0)
+    return buffer
