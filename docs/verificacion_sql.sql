@@ -12,3 +12,6 @@ SELECT ROUND(AVG(TIMESTAMPDIFF(YEAR, birth_date, CURDATE())), 1) AS edad_promedi
        MAX(TIMESTAMPDIFF(YEAR, birth_date, CURDATE())) AS edad_maxima
 FROM personas
 WHERE birth_date IS NOT NULL;
+
+-- G: GET /personas/cumpleanios/mes/{numero_mes} (ejemplo con el mes 11)
+SELECT * FROM personas WHERE MONTH(birth_date) = 11;
