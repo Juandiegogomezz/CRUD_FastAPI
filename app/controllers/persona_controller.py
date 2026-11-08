@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..views.persona import PersonaCreate, PersonaUpdate, PersonaRead
 from ..services import persona_service
+from ..views.persona import EdadEstadisticas
 
 router = APIRouter(prefix="/personas", tags=["personas"])
 
@@ -43,3 +44,9 @@ def delete_persona(persona_id: int, db: Session = Depends(get_db)):
     """Delete a Persona by ID via service layer."""
     persona_service.delete_persona(db, persona_id)
     return None
+
+
+@router.get("/estadisticas/edad", response_model=EdadEstadisticas)
+def get_edad_stats(db: Session = Depends(get_db)):
+    """Return average, min and max age of Personas via service layer."""
+    return persona_service.get_edad_stats(db)
