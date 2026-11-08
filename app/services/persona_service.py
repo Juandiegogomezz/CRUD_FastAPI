@@ -1,6 +1,7 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func, text
 
 from ..models.persona import Persona
 from ..views.persona import PersonaCreate, PersonaUpdate
@@ -76,3 +77,14 @@ def delete_persona(db: Session, persona_id: int) -> None:
         raise PersonaNotFoundError()
     db.delete(obj)
     db.commit()
+
+    
+def get_cumpleanios_mes(db: Session, mes: int) -> Sequence[Persona]:
+    """Return Personas whose birthday falls in the given month (any year)."""
+    return (
+        db.query(Persona)
+        .filter(Persona.birth_date.isnot(None))
+        .filter(func.month(Persona.birth_date) == mes)
+        .order_by(func.day(Persona.birth_date))
+        .all()
+    )
