@@ -76,3 +76,29 @@ def delete_persona(db: Session, persona_id: int) -> None:
         raise PersonaNotFoundError()
     db.delete(obj)
     db.commit()
+
+
+    # Cuenta cuántas personas usan cada dominio de correo (ejemplo: gmail.com)
+def obtener_estadisticas_dominios(db):
+    resultados = db.query(
+        func.substring_index(Persona.email, '@', -1).label('dominio'),
+        func.count(Persona.id)
+    ).group_by('dominio').all()
+    return {row[0]: row[1] for row in resultados}
+
+# Calcula la edad exacta basándose en la fecha de nacimiento actual
+def obtener_estadisticas_edad(db):
+    edades = db.query(
+        func.floor(func.datediff(func.current_date(), Persona.birth_date) / 365.25).label('edad')
+    ).all()
+    
+    lista_edades = [e[0] for e in edades if e[0] is not None]
+    
+    if not lista_edades:
+        return {"edad_promedio": 0.0, "edad_minima": 0, "edad_maxima": 0}
+        
+    return {
+        "edad_promedio": round(sum(lista_edades) / len(lista_edades), 1),
+        "edad_minima": int(min(lista_edades)),
+        "edad_maxima": int(max(lista_edades))
+    }
