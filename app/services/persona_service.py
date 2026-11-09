@@ -80,7 +80,11 @@ def delete_persona(db: Session, persona_id: int) -> None:
 
     
 def get_dominios_stats(db: Session) -> dict:
-    """Return the number of Personas per email domain."""
+    """
+    Calcula la distribución de personas por dominio de correo.
+    Extrae el texto posterior al símbolo '@' y agrupa los resultados 
+    para facilitar el análisis estadístico en el frontend.
+    """
     dominio = func.substring_index(Persona.email, "@", -1)
     rows = (
         db.query(dominio, func.count(Persona.id))
@@ -89,4 +93,4 @@ def get_dominios_stats(db: Session) -> dict:
         .all()
     )
     return {nombre: total for nombre, total in rows}
-# Logica de servicios verificadas
+
