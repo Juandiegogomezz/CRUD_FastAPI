@@ -49,3 +49,4 @@ def delete_persona(persona_id: int, db: Session = Depends(get_db)):
 def get_dominios_stats(db: Session = Depends(get_db)):
     """Return count of Personas grouped by email domain via service layer."""
     return persona_service.get_dominios_stats(db)
+# Rutas de estadisticas completadas
