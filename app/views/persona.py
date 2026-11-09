@@ -1,3 +1,7 @@
+"""
+Modelos Pydantic (Esquemas) para la validación y serialización 
+de datos de entrada y salida en los endpoints de la API.
+"""
 from datetime import date, datetime
 from pydantic import BaseModel, Field, EmailStr
 
@@ -42,4 +46,3 @@ class PersonaRead(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
-# Esquema validado
