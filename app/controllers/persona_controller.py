@@ -49,8 +49,13 @@ def delete_persona(persona_id: int, db: Session = Depends(get_db)):
 def exportar_csv(db: Session = Depends(get_db)):
     """Export all Personas as a downloadable CSV file."""
     buffer = persona_service.exportar_personas_csv(db)
+    # StreamingResponse envia el contenido progresivamente en vez de
+    # cargarlo todo de una vez en memoria como una respuesta normal,
+    # tal como lo sugiere el enunciado del laboratorio
     return StreamingResponse(
         buffer,
         media_type="text/csv",
+        # Content-Disposition le indica al navegador/cliente que debe
+        # descargar el archivo en vez de mostrarlo directamente
         headers={"Content-Disposition": 'attachment; filename="personas.csv"'},
     )

@@ -82,13 +82,15 @@ def exportar_personas_csv(db: Session):
     """Generate a CSV stream with all Personas (excluding created_at)."""
     personas = db.query(Persona).all()
 
+    # Usamos StringIO para construir el CSV "en memoria", sin necesidad
+    # de crear un archivo temporal en disco
     buffer = io.StringIO()
     writer = csv.writer(buffer)
 
-    # Encabezado
+    # Encabezado: solo los campos pedidos, sin incluir created_at
     writer.writerow(["id", "first_name", "last_name", "email", "phone", "birth_date", "is_active", "notes"])
 
-    # Filas
+    # Una fila por cada persona, en el mismo orden que el encabezado
     for p in personas:
         writer.writerow([
             p.id,
@@ -101,5 +103,7 @@ def exportar_personas_csv(db: Session):
             p.notes,
         ])
 
+    # Rebobinamos el buffer al inicio, para que la lectura posterior
+    # (en StreamingResponse) empiece desde el principio del contenido
     buffer.seek(0)
     return buffer
