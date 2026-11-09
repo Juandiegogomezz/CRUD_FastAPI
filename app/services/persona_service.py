@@ -81,6 +81,9 @@ def delete_persona(db: Session, persona_id: int) -> None:
 
 def _normalizar_para_email(texto: str) -> str:
     """Quita tildes, enes y caracteres especiales para usar en un email."""
+    # NFKD descompone caracteres acentuados en su letra base + el acento
+    # por separado (ej: "é" se separa en "e" + acento), lo que nos
+    # permite despues descartar el acento y quedarnos solo con la letra
     texto_normalizado = unicodedata.normalize("NFKD", texto)
     solo_ascii = texto_normalizado.encode("ascii", "ignore").decode("ascii")
     return solo_ascii.lower()
@@ -88,6 +91,8 @@ def _normalizar_para_email(texto: str) -> str:
 
 def poblar_personas(db: Session, cantidad: int) -> int:
     """Generate and insert `cantidad` fake Personas with realistic data."""
+    # Usamos la configuracion regional es_CO para que los nombres,
+    # telefonos y textos generados tengan formato colombiano
     fake = Faker("es_CO")
     dominios = ["gmail.com", "outlook.com"]
     creados = 0
@@ -96,6 +101,9 @@ def poblar_personas(db: Session, cantidad: int) -> int:
         first_name = fake.first_name()
         last_name = fake.last_name()
         dominio = fake.random_element(dominios)
+        # Normalizamos el nombre antes de construir el email para evitar
+        # caracteres como tildes o la ñ, que no son validos en un email
+        # (ej: "Jose" -> "jose", "Peña" -> "Pena")
         base_email = f"{_normalizar_para_email(first_name)}.{_normalizar_para_email(last_name)}"
         email = f"{base_email}@{dominio}"
 
@@ -110,8 +118,10 @@ def poblar_personas(db: Session, cantidad: int) -> int:
             last_name=last_name,
             email=email,
             phone=fake.phone_number(),
+            # Edad valida entre 18 y 85 anos, segun lo solicitado
             birth_date=fake.date_of_birth(minimum_age=18, maximum_age=85),
             is_active=fake.boolean(),
+            # notes tiene 50% de probabilidad de quedar vacio (None)
             notes=fake.sentence() if fake.boolean() else None,
         )
         db.add(obj)
