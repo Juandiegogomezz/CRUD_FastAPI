@@ -78,7 +78,9 @@ def delete_persona(db: Session, persona_id: int) -> None:
     db.commit()
 
 def reset_personas(db: Session) -> int:
-    """elimina a todas las personas y devuelve cuantas fueron eliminadas."""
+    """Delete all Personas and return how many were deleted."""
+    # Contamos los registros ANTES de eliminarlos, porque despues
+    # del delete ya no habria forma de saber cuantos habia
     cantidad = db.query(Persona).count()
     db.query(Persona).delete()
     db.commit()
