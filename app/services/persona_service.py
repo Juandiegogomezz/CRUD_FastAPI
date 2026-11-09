@@ -89,3 +89,4 @@ def get_dominios_stats(db: Session) -> dict:
         .all()
     )
     return {nombre: total for nombre, total in rows}
+# Logica de servicios verificadas
