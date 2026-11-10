@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from .database import engine
 from .database import Base
 from .controllers import persona_controller
+from .controllers import busqueda_controller
 from .error_handlers import register_exception_handlers
 
 
@@ -21,6 +22,7 @@ def create_app() -> FastAPI:
     def health() -> dict:
         return {"status": "ok"}
 
+    app.include_router(busqueda_controller.router)
     app.include_router(persona_controller.router)
     return app
 
