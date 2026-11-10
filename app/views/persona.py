@@ -1,3 +1,7 @@
+"""
+Modelos Pydantic (Esquemas) para la validación y serialización 
+de datos de entrada y salida en los endpoints de la API.
+"""
 from datetime import date, datetime
 from pydantic import BaseModel, Field, EmailStr
 
@@ -42,3 +46,19 @@ class PersonaRead(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class EdadEstadisticas(BaseModel):
+    """Schema for age statistics computed from birth_date."""
+    edad_promedio: float | None
+    edad_minima: int | None
+    edad_maxima: int | None
+
+
+class PoblarRequest(BaseModel):
+    """Schema used for the bulk population request."""
+    # gt=0 y le=1000 validan automaticamente el rango permitido:
+    # si se envia un valor fuera de este rango, FastAPI responde
+    # con 422 Unprocessable Entity sin que tengamos que validarlo
+    # manualmente en el endpoint
+    cantidad: int = Field(..., gt=0, le=1000)
