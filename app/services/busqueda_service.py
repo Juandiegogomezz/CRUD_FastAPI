@@ -17,3 +17,10 @@ def buscar_personas(db: Session, termino: str) -> Sequence[Persona]:
         )
         .all()
     )
+
+
+
+# --- F. GET /personas/reporte/activos -------------------------------------
+def reporte_activos(db: Session) -> Sequence[Persona]:
+    """Solo las personas con is_active = true."""
+    return db.query(Persona).filter(Persona.is_active.is_(True)).all()
