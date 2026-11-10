@@ -65,6 +65,10 @@ def delete_persona(persona_id: int, db: Session = Depends(get_db)):
 def get_edad_stats(db: Session = Depends(get_db)):
     """Return average, min and max age of Personas via service layer."""
     return persona_service.get_edad_stats(db)
+@router.get("/estadisticas/dominios", response_model=dict[str, int], summary="Estadísticas de dominios", description="Retorna el conteo de personas agrupadas por su dominio de correo electrónico.")
+def get_dominios_stats(db: Session = Depends(get_db)):
+    """Return count of Personas grouped by email domain via service layer."""
+    return persona_service.get_dominios_stats(db)
 @router.post("/poblar", status_code=status.HTTP_201_CREATED)
 def poblar_personas(payload: PoblarRequest, db: Session = Depends(get_db)):
     """Bulk-create Personas using Faker-generated data."""

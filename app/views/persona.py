@@ -1,3 +1,7 @@
+"""
+Modelos Pydantic (Esquemas) para la validación y serialización 
+de datos de entrada y salida en los endpoints de la API.
+"""
 from datetime import date, datetime
 from pydantic import BaseModel, Field, EmailStr
 
