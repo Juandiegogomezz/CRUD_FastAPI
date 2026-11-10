@@ -17,9 +17,20 @@ def buscar_personas(termino: str, db: Session = Depends(get_db)):
     return busqueda_service.buscar_personas(db, termino)
 
 
-
 # --- F. Reporte de activos (proyección) -------------------------------------
 @router.get("/reporte/activos", response_model=List[PersonaActivaRead])
 def reporte_activos(db: Session = Depends(get_db)):
     """Solo activos, mostrando únicamente id, email, phone, is_active."""
     return busqueda_service.reporte_activos(db)
+
+
+# --- H. Desactivación masiva ------------------------------------------------
+@router.patch("/bulk/desactivar")
+def desactivar_bulk(body: BulkDesactivarRequest, db: Session = Depends(get_db)):
+    """Pone is_active = false a una lista de IDs (máximo 100)."""
+    if len(body.ids) == 0 or len(body.ids) > 100:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La lista de IDs no puede estar vacía ni tener más de 100 elementos.",
+        )
+    return busqueda_service.desactivar_bulk(db, body.ids)
