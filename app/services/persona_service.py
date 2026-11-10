@@ -81,6 +81,16 @@ def delete_persona(db: Session, persona_id: int) -> None:
     db.delete(obj)
     db.commit()
 
+    
+def get_cumpleanios_mes(db: Session, mes: int) -> Sequence[Persona]:
+    """Return Personas whose birthday falls in the given month (any year)."""
+    return (
+        db.query(Persona)
+        .filter(Persona.birth_date.isnot(None))
+        .filter(func.month(Persona.birth_date) == mes)
+        .order_by(func.day(Persona.birth_date))
+        .all()
+    )
 
 def get_edad_stats(db: Session) -> dict:
     """Return average, min and max age computed from birth_date."""

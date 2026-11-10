@@ -1,11 +1,11 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
-from ..views.persona import PersonaCreate, PersonaUpdate, PersonaRead, PoblarRequest
-from fastapi.responses import StreamingResponse
-
+from fastapi import HTTPException
 from ..database import get_db
-from ..views.persona import PersonaCreate, PersonaUpdate, PersonaRead
+from ..views.persona import PersonaCreate, PersonaUpdate, PersonaRead, PoblarRequest, EdadEstadisticas
+from fastapi.responses import StreamingResponse
+from ..services import persona_service
 from ..services import persona_service
 from ..views.persona import EdadEstadisticas
 
@@ -61,6 +61,14 @@ def delete_persona(persona_id: int, db: Session = Depends(get_db)):
     return None
 
 
+@router.get("/cumpleanios/mes/{numero_mes}", response_model=List[PersonaRead])
+def get_cumpleanios_mes(numero_mes: str, db: Session = Depends(get_db)):
+    """Return Personas with birthday in the given month (1-12)."""
+    if not numero_mes.isdigit() or not 1 <= int(numero_mes) <= 12:
+        raise HTTPException(
+            status_code=400, detail="El mes debe ser un entero entre 1 y 12."
+        )
+    return persona_service.get_cumpleanios_mes(db, int(numero_mes))
 @router.get("/estadisticas/edad", response_model=EdadEstadisticas)
 def get_edad_stats(db: Session = Depends(get_db)):
     """Return average, min and max age of Personas via service layer."""
