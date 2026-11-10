@@ -1,6 +1,8 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func, text
+
 import unicodedata
 from faker import Faker
 import csv
@@ -78,6 +80,22 @@ def delete_persona(db: Session, persona_id: int) -> None:
         raise PersonaNotFoundError()
     db.delete(obj)
     db.commit()
+
+    
+def get_dominios_stats(db: Session) -> dict:
+    """
+    Calcula la distribución de personas por dominio de correo.
+    Extrae el texto posterior al símbolo '@' y agrupa los resultados 
+    para facilitar el análisis estadístico en el frontend.
+    """
+    dominio = func.substring_index(Persona.email, "@", -1)
+    rows = (
+        db.query(dominio, func.count(Persona.id))
+        .group_by(dominio)
+        .order_by(func.count(Persona.id).desc())
+        .all()
+    )
+    return {nombre: total for nombre, total in rows}
 
 def reset_personas(db: Session) -> int:
     """Delete all Personas and return how many were deleted."""
