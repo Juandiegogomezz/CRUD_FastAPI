@@ -1,9 +1,8 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-import unicodedata
-from faker import Faker
-
+import csv
+import io
 from ..models.persona import Persona
 from ..views.persona import PersonaCreate, PersonaUpdate
 from .errors import PersonaNotFoundError, EmailAlreadyExistsError
@@ -79,11 +78,32 @@ def delete_persona(db: Session, persona_id: int) -> None:
     db.delete(obj)
     db.commit()
 
-def reset_personas(db: Session) -> int:
-    """Delete all Personas and return how many were deleted."""
-    # Contamos los registros ANTES de eliminarlos, porque despues
-    # del delete ya no habria forma de saber cuantos habia
-    cantidad = db.query(Persona).count()
-    db.query(Persona).delete()
-    db.commit()
-    return cantidad
+def exportar_personas_csv(db: Session):
+    """Generate a CSV stream with all Personas (excluding created_at)."""
+    personas = db.query(Persona).all()
+
+    # Usamos StringIO para construir el CSV "en memoria", sin necesidad
+    # de crear un archivo temporal en disco
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+
+    # Encabezado: solo los campos pedidos, sin incluir created_at
+    writer.writerow(["id", "first_name", "last_name", "email", "phone", "birth_date", "is_active", "notes"])
+
+    # Una fila por cada persona, en el mismo orden que el encabezado
+    for p in personas:
+        writer.writerow([
+            p.id,
+            p.first_name,
+            p.last_name,
+            p.email,
+            p.phone,
+            p.birth_date,
+            p.is_active,
+            p.notes,
+        ])
+
+    # Rebobinamos el buffer al inicio, para que la lectura posterior
+    # (en StreamingResponse) empiece desde el principio del contenido
+    buffer.seek(0)
+    return buffer

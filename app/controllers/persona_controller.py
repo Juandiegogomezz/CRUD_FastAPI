@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
-from ..views.persona import PersonaCreate, PersonaUpdate, PersonaRead, PoblarRequest
+from fastapi.responses import StreamingResponse
 
 from ..database import get_db
 from ..views.persona import PersonaCreate, PersonaUpdate, PersonaRead
@@ -58,15 +58,17 @@ def delete_persona(persona_id: int, db: Session = Depends(get_db)):
     persona_service.delete_persona(db, persona_id)
     return None
 
-
-@router.post("/poblar", status_code=status.HTTP_201_CREATED)
-def poblar_personas(payload: PoblarRequest, db: Session = Depends(get_db)):
-    """Bulk-create Personas using Faker-generated data."""
-    # La validacion de "cantidad" ya ocurrio automaticamente en el
-    # schema PoblarRequest (ver app/views/persona.py), por eso aqui
-    # solo delegamos la logica pesada a la capa de servicios
-    creados = persona_service.poblar_personas(db, payload.cantidad)
-    return {
-        "message": f"{creados} usuarios creados exitosamente",
-        "status": status.HTTP_201_CREATED,
-    }
+@router.get("/exportar/csv")
+def exportar_csv(db: Session = Depends(get_db)):
+    """Export all Personas as a downloadable CSV file."""
+    buffer = persona_service.exportar_personas_csv(db)
+    # StreamingResponse envia el contenido progresivamente en vez de
+    # cargarlo todo de una vez en memoria como una respuesta normal,
+    # tal como lo sugiere el enunciado del laboratorio
+    return StreamingResponse(
+        buffer,
+        media_type="text/csv",
+        # Content-Disposition le indica al navegador/cliente que debe
+        # descargar el archivo en vez de mostrarlo directamente
+        headers={"Content-Disposition": 'attachment; filename="personas.csv"'},
+    )
