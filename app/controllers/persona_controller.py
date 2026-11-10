@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
+from ..views.persona import PersonaCreate, PersonaUpdate, PersonaRead, PoblarRequest
 from fastapi.responses import StreamingResponse
 
 from ..database import get_db
@@ -58,6 +59,17 @@ def delete_persona(persona_id: int, db: Session = Depends(get_db)):
     persona_service.delete_persona(db, persona_id)
     return None
 
+@router.post("/poblar", status_code=status.HTTP_201_CREATED)
+def poblar_personas(payload: PoblarRequest, db: Session = Depends(get_db)):
+    """Bulk-create Personas using Faker-generated data."""
+    # La validacion de "cantidad" ya ocurrio automaticamente en el
+    # schema PoblarRequest (ver app/views/persona.py), por eso aqui
+    # solo delegamos la logica pesada a la capa de servicios
+    creados = persona_service.poblar_personas(db, payload.cantidad)
+    return {
+        "message": f"{creados} usuarios creados exitosamente",
+        "status": status.HTTP_201_CREATED,
+    }
 @router.get("/exportar/csv")
 def exportar_csv(db: Session = Depends(get_db)):
     """Export all Personas as a downloadable CSV file."""
