@@ -1,6 +1,8 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+import unicodedata
+from faker import Faker
 
 from ..models.persona import Persona
 from ..views.persona import PersonaCreate, PersonaUpdate
