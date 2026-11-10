@@ -127,6 +127,20 @@ curl -s -X PUT http://127.0.0.1:8000/personas/1 \
 # Eliminar
 curl -s -X DELETE http://127.0.0.1:8000/personas/1 -i
 
+## Laboratorio 1 — API Rest (CRUD): Faker, SQL, Python
+
+**Bases de Datos para Ciencia de Datos** · Equipo 5
+
+### División de responsabilidades
+
+| Integrante | Endpoints desarrollados |
+|---|---|
+| **Juan Diego Gómez** | `POST /personas/poblar`<br>`DELETE /personas/reset`<br>`GET /personas/exportar/csv` |
+| **Ingrid Yohana Orrego García** | `GET /personas/cumpleanios/mes/{numero_mes}`<br>`GET /personas/estadisticas/dominios`<br>`GET /personas/estadisticas/edad` |
+| **Daniela Alejandra Salazar Ibargüen** | `PATCH /personas/bulk/desactivar`<br>`GET /personas/reporte/activos`<br>`GET /personas/buscar/{termino}` |
+
+Cada endpoint fue desarrollado en una rama `feature/...` independiente e integrado a `master` mediante Pull Request dentro de este repositorio.
+
 ## Detener el servidor
 
 - Si lo iniciaste en la misma terminal: usa `CTRL+C`.
