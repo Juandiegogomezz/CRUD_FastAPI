@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 from ..database import get_db
 from ..views.persona import PersonaCreate, PersonaUpdate, PersonaRead
 from ..services import persona_service
+from ..views.persona import EdadEstadisticas
 
 router = APIRouter(prefix="/personas", tags=["personas"])
 
@@ -60,6 +61,10 @@ def delete_persona(persona_id: int, db: Session = Depends(get_db)):
     return None
 
 
+@router.get("/estadisticas/edad", response_model=EdadEstadisticas)
+def get_edad_stats(db: Session = Depends(get_db)):
+    """Return average, min and max age of Personas via service layer."""
+    return persona_service.get_edad_stats(db)
 @router.get("/estadisticas/dominios", response_model=dict[str, int], summary="Estadísticas de dominios", description="Retorna el conteo de personas agrupadas por su dominio de correo electrónico.")
 def get_dominios_stats(db: Session = Depends(get_db)):
     """Return count of Personas grouped by email domain via service layer."""

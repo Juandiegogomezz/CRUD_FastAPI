@@ -1,6 +1,6 @@
 from typing import Sequence
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError 
 from sqlalchemy import func, text
 
 import unicodedata
@@ -81,6 +81,22 @@ def delete_persona(db: Session, persona_id: int) -> None:
     db.delete(obj)
     db.commit()
 
+
+def get_edad_stats(db: Session) -> dict:
+    """Return average, min and max age computed from birth_date."""
+    edad = func.timestampdiff(text("YEAR"), Persona.birth_date, func.curdate())
+    promedio, minima, maxima = (
+        db.query(func.avg(edad), func.min(edad), func.max(edad))
+        .filter(Persona.birth_date.isnot(None))
+        .one()
+    )
+    if promedio is None:
+        return {"edad_promedio": None, "edad_minima": None, "edad_maxima": None}
+    return {
+        "edad_promedio": round(float(promedio), 1),
+        "edad_minima": int(minima),
+        "edad_maxima": int(maxima),
+    }
     
 def get_dominios_stats(db: Session) -> dict:
     """

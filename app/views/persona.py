@@ -47,6 +47,14 @@ class PersonaRead(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
+class EdadEstadisticas(BaseModel):
+    """Schema for age statistics computed from birth_date."""
+    edad_promedio: float | None
+    edad_minima: int | None
+    edad_maxima: int | None
+
+
 class PoblarRequest(BaseModel):
     """Schema used for the bulk population request."""
     # gt=0 y le=1000 validan automaticamente el rango permitido:
